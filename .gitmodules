@@ -1,0 +1,3 @@
+[submodule "terraform/modules"]
+	path = terraform/modules
+	url = https://github.com/frankyemm/logidata-tf-modules.git
