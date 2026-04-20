@@ -1,0 +1,38 @@
+name: CI Logistics Domain (IoT)
+
+on:
+  push:
+    paths:
+      - 'src/domains/logistics/**'
+      - 'tests/logistics/**'
+  pull_request:
+    paths:
+      - 'src/domains/logistics/**'
+      - 'tests/logistics/**'
+
+jobs:
+  python_qa_logistics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: 📦 Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit pytest moto[dynamodb,kinesis] boto3
+
+      - name: 🧹 Linter y Formato (Ruff)
+        run: ruff check src/domains/logistics/
+
+      - name: 🛡️ Escáner de Seguridad (Bandit)
+        run: bandit -r src/domains/logistics/ -ll
+
+      - name: 🧪 Unit Tests (Pytest con Moto)
+        # Esto va a ejecutar el test que acabamos de crear, pasando por DynamoDB en memoria.
+        run: pytest tests/logistics/

@@ -36,7 +36,7 @@ jobs:
       - name: 🧪 Unit Tests (Pytest)
         run: |
           # Si no hay tests aún, pytest fallará. Este comando asegura que corra si existen.
-          if[ -d "tests/sales" ] && [ "$(ls -A tests/sales)" ]; then
+          if [ -d "tests/sales" ] && [ "$(ls -A tests/sales)" ]; then
             pytest tests/sales/
           else
             echo "No hay tests definidos aún. Saltando..."
