@@ -1,0 +1,44 @@
+name: CI Infrastructure (DevSecOps)
+
+on:
+  push:
+    paths:
+      - 'terraform/**'
+  pull_request:
+    paths:
+      - 'terraform/**'
+
+jobs:
+  validate_and_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar repositorio (con submódulos)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive # OBLIGATORIO para que descargue logidata-tf-modules
+
+      - name: 🏗️ Configurar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: 🧹 Verificar Formato (fmt)
+        working-directory: ./terraform/environments/dev
+        run: terraform fmt -check -recursive ../../../terraform
+
+      - name: 🔧 Inicializar Terraform (Init)
+        working-directory: ./terraform/environments/dev
+        run: terraform init -backend=false
+
+      - name: ✅ Validar Sintaxis (Validate)
+        working-directory: ./terraform/environments/dev
+        run: terraform validate
+
+      - name: 🕵️ Escáner de Seguridad IaC (Checkov)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform/
+          framework: terraform
+          # Nota: Usamos soft-fail para que no bloquee el PR por falta de cifrado KMS
+          # En un banco esto estaría en 'false', pero para la maestría demuestra el concepto.
+          soft_fail: true

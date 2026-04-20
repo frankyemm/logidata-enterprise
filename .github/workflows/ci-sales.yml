@@ -1,0 +1,43 @@
+name: CI Sales Domain (Data Mesh)
+
+on:
+  push:
+    paths:
+      - 'src/domains/sales/**'
+      - 'tests/sales/**'
+  pull_request:
+    paths:
+      - 'src/domains/sales/**'
+      - 'tests/sales/**'
+
+jobs:
+  python_qa:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Clonar repositorio
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: 📦 Instalar dependencias de QA
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit pytest
+
+      - name: 🧹 Linter y Formato (Ruff)
+        run: ruff check src/domains/sales/
+
+      - name: 🛡️ Escáner de Seguridad (Bandit)
+        run: bandit -r src/domains/sales/ -ll
+
+      - name: 🧪 Unit Tests (Pytest)
+        run: |
+          # Si no hay tests aún, pytest fallará. Este comando asegura que corra si existen.
+          if[ -d "tests/sales" ] && [ "$(ls -A tests/sales)" ]; then
+            pytest tests/sales/
+          else
+            echo "No hay tests definidos aún. Saltando..."
+          fi
