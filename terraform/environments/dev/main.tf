@@ -1,0 +1,59 @@
+terraform {
+  required_version = ">= 1.5"
+  required_providers {
+    aws = { source = "hashicorp/aws", version = "~> 5.0" }
+  }
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+variable "db_password" {
+  type      = string
+  sensitive = true
+}
+
+variable "my_ip" { type = string }
+
+locals {
+  project_prefix = "logidata"
+  environment    = "dev"
+}
+
+# 1. Llamamos al módulo de Red
+module "networking" {
+  source         = "../../modules/networking"
+  project_prefix = local.project_prefix
+  environment    = local.environment
+  my_ip          = var.my_ip
+}
+
+# 2. Llamamos al módulo de Storage
+module "storage" {
+  source         = "../../modules/storage"
+  project_prefix = local.project_prefix
+  environment    = local.environment
+}
+
+# 3. Llamamos al módulo de Seguridad (IAM)
+module "iam" {
+  source               = "../../modules/iam"
+  project_prefix       = local.project_prefix
+  environment          = local.environment
+  # Fíjate cómo le pasamos los buckets del módulo storage de forma dinámica:
+  datalake_bucket_arns = values(module.storage.bucket_arns) 
+}
+
+# 4. Llamamos al módulo de Bases de Datos
+module "databases" {
+  source               = "../../modules/databases"
+  project_prefix       = local.project_prefix
+  environment          = local.environment
+  db_password          = var.db_password
+  # Extraemos red y seguridad de los otros módulos:
+  vpc_id               = module.networking.vpc_id
+  subnet_ids           = module.networking.subnet_ids
+  db_security_group_id = module.networking.db_security_group_id
+  redshift_role_arn    = module.iam.redshift_role_arn
+}
