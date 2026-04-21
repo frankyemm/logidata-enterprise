@@ -75,4 +75,8 @@ module "compute" {
   bronze_bucket_id  = module.storage.bucket_ids["bronze"]
   iot_stream_arn    = aws_kinesis_stream.iot_stream.arn
   dynamo_table_name = module.databases.dynamodb_table_name
+  # Inyectamos las rutas resolviéndolas desde el directorio actual (dev o prod)
+  script_sales_b2s_path        = "${path.root}/../../../src/domains/sales/bronze_to_silver_sales.py"
+  script_sales_s2g_path        = "${path.root}/../../../src/domains/sales/silver_to_gold_sales.py"
+  script_logistics_lambda_path = "${path.root}/../../../src/domains/logistics/lambda_iot.py"
 }
