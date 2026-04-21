@@ -1,14 +1,18 @@
 name: CI Logistics Domain (IoT)
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'src/domains/logistics/**'
       - 'tests/logistics/**'
+      - 'pytest.ini'
+      - '.github/workflows/ci-logistics.yml'
   pull_request:
     paths:
       - 'src/domains/logistics/**'
       - 'tests/logistics/**'
+      - 'pytest.ini'
 
 jobs:
   python_qa_logistics:

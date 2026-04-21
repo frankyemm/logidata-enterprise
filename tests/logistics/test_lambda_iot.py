@@ -48,3 +48,4 @@ def test_lambda_filtra_temp_critica():
     items = table.scan()["Items"]
     assert len(items) == 1
     assert items[0]["vehiculo"] == "V2"
+# Trigger CI from local
