@@ -38,19 +38,19 @@ module "storage" {
 
 # 3. Llamamos al módulo de Seguridad (IAM)
 module "iam" {
-  source               = "../../modules/iam"
-  project_prefix       = local.project_prefix
-  environment          = local.environment
+  source         = "../../modules/iam"
+  project_prefix = local.project_prefix
+  environment    = local.environment
   # Fíjate cómo le pasamos los buckets del módulo storage de forma dinámica:
-  datalake_bucket_arns = values(module.storage.bucket_arns) 
+  datalake_bucket_arns = values(module.storage.bucket_arns)
 }
 
 # 4. Llamamos al módulo de Bases de Datos
 module "databases" {
-  source               = "../../modules/databases"
-  project_prefix       = local.project_prefix
-  environment          = local.environment
-  db_password          = var.db_password
+  source         = "../../modules/databases"
+  project_prefix = local.project_prefix
+  environment    = local.environment
+  db_password    = var.db_password
   # Extraemos red y seguridad de los otros módulos:
   vpc_id               = module.networking.vpc_id
   subnet_ids           = module.networking.subnet_ids
