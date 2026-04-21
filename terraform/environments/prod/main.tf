@@ -18,7 +18,7 @@ variable "my_ip" { type = string }
 
 locals {
   project_prefix = "logidata"
-  environment    = "dev"
+  environment    = "prod"
 }
 
 # 1. Llamamos al módulo de Red
