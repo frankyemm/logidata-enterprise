@@ -9,11 +9,6 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "db_password" {
-  type      = string
-  sensitive = true
-}
-
 variable "my_ip" { type = string }
 
 locals {
@@ -50,7 +45,6 @@ module "databases" {
   source         = "../../modules/databases"
   project_prefix = local.project_prefix
   environment    = local.environment
-  db_password    = var.db_password
   # Extraemos red y seguridad de los otros módulos:
   vpc_id               = module.networking.vpc_id
   subnet_ids           = module.networking.subnet_ids

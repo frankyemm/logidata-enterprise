@@ -1,16 +1,14 @@
-name: CI Infrastructure (DevSecOps)
+name: CD Infrastructure (Deploy)
 
 on:
-  pull_request:
-    paths:
-      - 'terraform/**'
-  # También lo corremos al hacer push, pero el CD se encargará de aplicar
   push:
+    branches:
+      - main
     paths:
       - 'terraform/**'
 
 jobs:
-  validate_and_plan:
+  deploy_infra:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Clonar repositorio
@@ -34,27 +32,12 @@ jobs:
         with:
           terraform_version: "1.5.0"
 
-      - name: 🧹 Verificar Formato
-        working-directory: ./terraform/environments/dev
-        run: terraform fmt -check -recursive ../../../terraform
-
-      - name: 🔧 Inicializar Terraform (Con Backend Remoto)
+      - name: 🔧 Inicializar Terraform
         working-directory: ./terraform/environments/dev
         run: terraform init
 
-      - name: ✅ Validar Sintaxis
-        working-directory: ./terraform/environments/dev
-        run: terraform validate
-
-      - name: 📋 Terraform Plan
+      - name: 🚀 Terraform Apply
         working-directory: ./terraform/environments/dev
         env:
           TF_VAR_my_ip: ${{ steps.ip.outputs.ipv4 }}
-        run: terraform plan -no-color
-
-      - name: 🕵️ Escáner Checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: terraform/
-          framework: terraform
-          soft_fail: true
+        run: terraform apply -auto-approve
