@@ -5,3 +5,14 @@ __pycache__/
 .terraform/
 *.tfvars
 .env
+
+# Airflow local files
+airflow/airflow.cfg
+airflow/airflow.db
+airflow/logs/
+airflow/simple_auth_manager_passwords.json.generated
+airflow/webserver_config.py
+
+# Python Virtual Env
+venv/
+.venv/

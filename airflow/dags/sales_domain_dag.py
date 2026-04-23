@@ -2,13 +2,12 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.providers.amazon.aws.operators.glue import GlueJobOperator
 from airflow.providers.amazon.aws.operators.glue_crawler import GlueCrawlerOperator
-from airflow.operators.bash import BashOperator
+from airflow.providers.standard.operators.bash import BashOperator
 
-# Argumentos corporativos: Reintentos y SLAs
 default_args = {
     'owner': 'data_engineering_team',
     'depends_on_past': False,
-    'email_on_failure': False, # En prod, esto enviaría un correo o Slack
+    'email_on_failure': False,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
@@ -23,14 +22,13 @@ with DAG(
     tags=['sales', 'data-mesh', 'lakehouse'],
 ) as dag:
 
-    # 1. Ingesta (Simulada desde script Python)
+    # 1. Ingesta (Nombre real del bucket sin V2)
     ingest_sales = BashOperator(
         task_id='ingest_sales_to_bronze',
-        # Llamamos al script del dominio específico
-        bash_command='python3 /opt/airflow/src/domains/sales/ingest_sales.py',
+        bash_command='export BRONZE_BUCKET=logidata-dev-bronze && cd /home/franky/Escritorio/logidata-enterprise && python3 src/domains/sales/ingest_sales.py',
     )
 
-    # 2. Descubrimiento de Metadatos
+    # 2. Descubrimiento de Metadatos (Sin V2)
     run_sales_crawler = GlueCrawlerOperator(
         task_id='run_sales_bronze_crawler',
         config={'Name': 'logidata-dev-bronze-crawler'},
@@ -39,7 +37,7 @@ with DAG(
         wait_for_completion=True,
     )
 
-    # 3. Transformación a Silver (Data Quality & Delta Lake)
+    # 3. Transformación a Silver (Sin V2)
     bronze_to_silver_sales = GlueJobOperator(
         task_id='glue_bronze_to_silver_sales',
         job_name='logidata-dev-sales-bronze-to-silver',
@@ -48,7 +46,7 @@ with DAG(
         wait_for_completion=True,
     )
 
-    # 4. Transformación a Gold (Modelo Dimensional en Delta)
+    # 4. Transformación a Gold (Sin V2)
     silver_to_gold_sales = GlueJobOperator(
         task_id='glue_silver_to_gold_sales',
         job_name='logidata-dev-sales-silver-to-gold',
@@ -57,6 +55,5 @@ with DAG(
         wait_for_completion=True,
     )
 
-    # DAG Topology (Strict Dependencies)
+    # Topología
     ingest_sales >> run_sales_crawler >> bronze_to_silver_sales >> silver_to_gold_sales
-

@@ -1,0 +1,18 @@
+# ==========================================
+# LogiData S.A.S. - Dependencias del Proyecto
+# ==========================================
+
+# --- Orquestación ---
+apache-airflow==3.1.8
+apache-airflow-providers-amazon==9.24.0
+
+# --- AWS SDK ---
+boto3==1.42.82
+
+# --- Conectores Base de Datos (Opcional, si usaste Python en lugar de psql) ---
+redshift_connector==2.1.13
+
+# --- Testing y Calidad
+pytest>=8.0.0
+moto[dynamodb,kinesis]>=5.0.0
+Pyspark>=3.4.0  # Solo para autocompletado y validación local de sintaxis (Glue ya lo provee en la nube)
