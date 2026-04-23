@@ -8,27 +8,23 @@ from src.domains.logistics.simulator import simulate
 @mock_aws
 def test_simulate_sends_records_to_kinesis():
     """
-    Verifica que el simulador lee un CSV (mockeado) y envía los 
-    eventos correctamente al stream de Kinesis (mockeado en memoria).
+    Verifica que el simulador lee un CSV y envía los eventos a Kinesis.
     """
-    # 1. SETUP: Variables de entorno y Stream falso en memoria
     os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
-    os.environ["KINESIS_STREAM"] = "test-iot-stream"
     
     kinesis = boto3.client("kinesis", region_name="us-east-1")
     kinesis.create_stream(StreamName="test-iot-stream", ShardCount=1)
     
-    # 2. ARRANGE: Datos CSV simulados
     csv_data = "vehiculo,timestamp,latitud,longitud,temperatura,evento\nV1,2026-01-01,0,0,25,TEMP_CRITICA\n"
     
-    # 3. ACT: Engañamos a Python para que no lea el disco duro ni use time.sleep
+    # EL FIX: Mockeamos también la constante STREAM_NAME dentro del módulo simulator
     with patch("os.path.exists", return_value=True), \
          patch("builtins.open", mock_open(read_data=csv_data)), \
-         patch("time.sleep", return_value=None):
+         patch("time.sleep", return_value=None), \
+         patch("src.domains.logistics.simulator.STREAM_NAME", "test-iot-stream"):
         
         simulate()
         
-    # 4. ASSERT: Validamos que el registro llegó al Stream de Kinesis
     response = kinesis.describe_stream(StreamName="test-iot-stream")
     shard_id = response["StreamDescription"]["Shards"][0]["ShardId"]
     
