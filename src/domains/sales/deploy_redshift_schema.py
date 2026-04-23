@@ -19,7 +19,16 @@ DROP TABLE IF EXISTS dim_tiempo;
 CREATE TABLE dim_cliente (id_cliente VARCHAR(10) PRIMARY KEY, nombre VARCHAR(100), zona VARCHAR(50), tipo_cliente VARCHAR(50));
 CREATE TABLE dim_producto (id_producto VARCHAR(10) PRIMARY KEY, categoria VARCHAR(50), precio FLOAT8, tipo_entrega VARCHAR(50));
 CREATE TABLE dim_tiempo (fecha TIMESTAMP PRIMARY KEY, anio INTEGER, mes INTEGER, dia INTEGER, hora INTEGER, dia_semana INTEGER);
-CREATE TABLE fact_pedidos (id_pedido VARCHAR(10) PRIMARY KEY, id_cliente VARCHAR(10) REFERENCES dim_cliente(id_cliente), id_producto VARCHAR(10) REFERENCES dim_producto(id_producto), fecha TIMESTAMP REFERENCES dim_tiempo(fecha), monto FLOAT8, estado VARCHAR(50), zona VARCHAR(50), conductor VARCHAR(20), vehiculo VARCHAR(20));
+
+-- Data Mesh: Tabla de hechos pura del dominio de Ventas (6 columnas)
+CREATE TABLE fact_pedidos (
+    id_pedido VARCHAR(10) PRIMARY KEY, 
+    id_cliente VARCHAR(10) REFERENCES dim_cliente(id_cliente), 
+    id_producto VARCHAR(10) REFERENCES dim_producto(id_producto), 
+    fecha TIMESTAMP REFERENCES dim_tiempo(fecha), 
+    monto FLOAT8, 
+    estado VARCHAR(50)
+);
 
 COPY dim_cliente FROM 's3://logidata-dev-gold/sales/dim_cliente/' IAM_ROLE '{IAM_ROLE_ARN}' FORMAT AS PARQUET;
 COPY dim_producto FROM 's3://logidata-dev-gold/sales/dim_producto/' IAM_ROLE '{IAM_ROLE_ARN}' FORMAT AS PARQUET;
