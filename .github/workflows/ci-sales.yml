@@ -5,10 +5,12 @@ on:
     paths:
       - 'src/domains/sales/**'
       - 'tests/sales/**'
+      - '.github/workflows/ci-sales.yml'
   pull_request:
     paths:
       - 'src/domains/sales/**'
       - 'tests/sales/**'
+      - '.github/workflows/ci-sales.yml'
 
 jobs:
   python_qa:

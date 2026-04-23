@@ -38,3 +38,4 @@ def test_upload_sales_data_success(tmp_path):
     assert "sales/clientes/clientes.csv" in claves_subidas
     assert "sales/catalogo/catalogo.csv" in claves_subidas
     assert "sales/pedidos/pedidos.csv" in claves_subidas
+# Triggering new CI run to pick up boto3 dependencies
